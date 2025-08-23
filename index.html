@@ -1,11 +1,418 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modern Statistics Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1226;
+      --panel: rgba(255,255,255,0.06);
+      --panel-strong: rgba(255,255,255,0.12);
+      --text: #eef0f6;
+      --muted: #b7bdd1;
+      --accent: #7c5cff;
+      --accent-2: #2ee6a6;
+      --danger: #ff6b6b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1000px 600px at 10% 10%, #1a1f44 0%, transparent 60%),
+                  radial-gradient(900px 500px at 90% 20%, #2a1944 0%, transparent 60%),
+                  linear-gradient(180deg, #0b0d1d 0%, #0f1226 60%);
+      display: grid;
+      place-items: start center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(1120px, 100%);
+      display: grid;
+      gap: 20px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #9f7bff);
+      box-shadow: var(--shadow);
+      font-weight: 800;
+    }
+    h1 { margin: 0; font-size: clamp(20px, 2.8vw, 32px); }
+    .subtitle { color: var(--muted); margin-top: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-strong);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .card h2 { margin: 0 0 12px 0; font-size: 18px; }
+
+    textarea, input[type="number"], input[type="text"], select {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 14px;
+      outline: none;
+    }
+    textarea { min-height: 140px; resize: vertical; }
+
+    .input-help { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+    .actions {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+    }
+    .btn {
+      appearance: none; border: 0; cursor: pointer; padding: 12px 14px;
+      border-radius: 12px; font-weight: 600; letter-spacing:.2px;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), #9f7bff); color: white; }
+    .btn.secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid rgba(255,255,255,0.12); }
+    .btn.ghost { background: transparent; color: var(--muted); }
+    .btn:active { transform: translateY(1px); }
+
+    .toggles { display:flex; gap:14px; align-items:center; flex-wrap: wrap; }
+    .switch {
+      position: relative; width: 52px; height: 30px; background: rgba(255,255,255,0.15);
+      border-radius: 30px; display:inline-block; vertical-align: middle; cursor:pointer;
+    }
+    .switch input { display:none; }
+    .switch .knob { position:absolute; top:3px; left:3px; width:24px; height:24px; background:white; border-radius:50%; transition: all .2s ease; }
+    .switch input:checked + .knob { left:25px; background: var(--accent-2); }
+    .switch-label { color: var(--muted); font-size: 13px; }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .results-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+    .metric {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 14px;
+    }
+    .metric .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .6px; }
+    .metric .v { font-size: 20px; font-weight: 700; margin-top: 6px; word-break: break-word; }
+
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .pill {
+      display:inline-block; padding:6px 10px; border-radius:999px; background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color: var(--muted); font-size:12px; margin-right:6px; margin-top:6px;
+    }
+
+    .error { color: var(--danger); font-size: 13px; margin-top: 8px; display:none; }
+
+    footer { text-align: center; color: var(--muted); margin-top: 8px; font-size: 12px; }
+    a { color: var(--accent-2); text-decoration: none; }
+  </style>
 </head>
 <body>
-    <h1>Hi this is a test website</h1>
+  <div class="app">
+    <div class="title">
+      <div class="logo">Σ</div>
+      <div>
+        <h1>Modern Statistics Calculator</h1>
+        <div class="subtitle">Paste numbers, choose options, and compute a rich set of descriptive statistics instantly.</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>1) Input Data</h2>
+        <textarea id="data" placeholder="Enter numbers separated by commas, spaces, or new lines.
+Example: 12, 9, 5, 17, 23, 9, 9, 14"></textarea>
+        <div class="input-help">• Any delimiters work (comma, space, tab, newline).<br/>• Scientific notation and negatives are supported, e.g., <code>-2.5</code>, <code>1.2e3</code>.<br/>• Use the <em>Sample</em> toggle for sample variance/SD; otherwise population.</div>
+        <div class="actions">
+          <button class="btn primary" id="btnCompute">Compute</button>
+          <button class="btn secondary" id="btnClear">Clear</button>
+          <button class="btn ghost" id="btnFillDemo" title="Load example data">Fill Demo Data</button>
+        </div>
+        <div id="err" class="error"></div>
+      </section>
+
+      <section class="card">
+        <h2>2) Options</h2>
+        <div class="toggles" style="margin-bottom:12px;">
+          <label class="switch">
+            <input type="checkbox" id="isSample" checked>
+            <span class="knob"></span>
+          </label>
+          <span class="switch-label">Treat data as <strong>Sample</strong> (unchecked = Population)</span>
+        </div>
+        <div class="row">
+          <div>
+            <label for="percentile" class="switch-label">Custom Percentile (0–100)</label>
+            <input id="percentile" type="number" min="0" max="100" step="0.1" value="90" />
+          </div>
+          <div>
+            <label for="precision" class="switch-label">Decimal Precision</label>
+            <input id="precision" type="number" min="0" max="12" step="1" value="4" />
+          </div>
+        </div>
+        <div style="margin-top:12px;" class="input-help">Quartiles use the R-7 linear interpolation method (same as many spreadsheets). Geometric mean requires all values &gt; 0; harmonic mean requires no zeros.</div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>3) Results</h2>
+      <div id="badges"></div>
+      <div class="results-grid" id="results"></div>
+    </section>
+
+    <footer>
+      Built for clarity and speed. Tip: You can press <strong>Enter</strong> inside the input to compute.
+    </footer>
+  </div>
+
+  <script>
+    // ---------- Utilities ----------
+    function parseNumbers(text) {
+      // Match numbers including scientific notation, decimals, and negatives
+      const matches = text.match(/[+-]?\d*\.?\d+(?:[eE][+-]?\d+)?/g);
+      if (!matches) return [];
+      return matches.map(Number).filter(n => Number.isFinite(n));
+    }
+
+    function round(value, precision) {
+      const p = Math.max(0, Math.min(12, precision|0));
+      const factor = Math.pow(10, p);
+      return Math.round((value + Number.EPSILON) * factor) / factor;
+    }
+
+    function sum(arr) { return arr.reduce((a,b) => a + b, 0); }
+    function mean(arr) { return sum(arr) / arr.length; }
+
+    function geometricMean(arr) {
+      if (arr.length === 0) return NaN;
+      if (arr.some(x => x <= 0)) return NaN; // defined only for positives
+      // Use logs for numerical stability
+      const avgLog = sum(arr.map(x => Math.log(x))) / arr.length;
+      return Math.exp(avgLog);
+    }
+
+    function harmonicMean(arr) {
+      if (arr.length === 0) return NaN;
+      if (arr.some(x => x === 0)) return NaN;
+      const denom = sum(arr.map(x => 1/x));
+      return arr.length / denom;
+    }
+
+    function median(sorted) {
+      const n = sorted.length;
+      if (n === 0) return NaN;
+      const mid = Math.floor(n/2);
+      return n % 2 ? sorted[mid] : (sorted[mid-1] + sorted[mid]) / 2;
+    }
+
+    function quantileR7(sorted, p) {
+      // p in [0,1], R type 7 (Excel/NumPy default)
+      const n = sorted.length;
+      if (n === 0) return NaN;
+      if (p <= 0) return sorted[0];
+      if (p >= 1) return sorted[n-1];
+      const idx = (n - 1) * p;
+      const lo = Math.floor(idx);
+      const hi = Math.ceil(idx);
+      const h = idx - lo;
+      return (1 - h) * sorted[lo] + h * sorted[hi];
+    }
+
+    function variance(arr, isSample) {
+      const n = arr.length;
+      if (n === 0) return NaN;
+      if (isSample && n < 2) return NaN;
+      const m = mean(arr);
+      const ss = arr.reduce((acc, x) => acc + (x - m) ** 2, 0);
+      return ss / (isSample ? (n - 1) : n);
+    }
+
+    function stddev(arr, isSample) { return Math.sqrt(variance(arr, isSample)); }
+
+    function modes(arr) {
+      if (arr.length === 0) return [];
+      const freq = new Map();
+      for (const x of arr) freq.set(x, (freq.get(x)||0) + 1);
+      let best = 0;
+      for (const v of freq.values()) best = Math.max(best, v);
+      const result = [...freq.entries()].filter(([,v]) => v === best).map(([k]) => Number(k));
+      return {modes: result, count: best};
+    }
+
+    function skewness(arr, isSample) {
+      const n = arr.length;
+      if (n < 3) return NaN;
+      const m = mean(arr);
+      const s = stddev(arr, true); // use sample sd in standardized moments
+      if (!isFinite(s) || s === 0) return 0;
+      const m3 = arr.reduce((acc,x) => acc + ((x - m)/s) ** 3, 0);
+      // Fisher-Pearson adjusted sample skewness
+      return (n/((n-1)*(n-2))) * m3;
+    }
+
+    function kurtosisExcess(arr, isSample) {
+      const n = arr.length;
+      if (n < 4) return NaN;
+      const m = mean(arr);
+      const s = stddev(arr, true);
+      if (!isFinite(s) || s === 0) return -3;
+      const z4sum = arr.reduce((acc,x) => acc + ((x - m)/s) ** 4, 0);
+      // Adjusted excess kurtosis (subtract 3)
+      return (n*(n+1)/((n-1)*(n-2)*(n-3))) * z4sum - (3*((n-1)**2)/((n-2)*(n-3)));
+    }
+
+    function uniqueSorted(arr) { return [...new Set(arr)].sort((a,b) => a-b); }
+
+    // ---------- UI Logic ----------
+    const els = {
+      data: document.getElementById('data'),
+      isSample: document.getElementById('isSample'),
+      percentile: document.getElementById('percentile'),
+      precision: document.getElementById('precision'),
+      results: document.getElementById('results'),
+      badges: document.getElementById('badges'),
+      btnCompute: document.getElementById('btnCompute'),
+      btnClear: document.getElementById('btnClear'),
+      btnFillDemo: document.getElementById('btnFillDemo'),
+      err: document.getElementById('err')
+    };
+
+    function showError(msg) {
+      els.err.textContent = msg;
+      els.err.style.display = msg ? 'block' : 'none';
+    }
+
+    function badge(text) { return `<span class="pill">${text}</span>`; }
+
+    function renderResults(values) {
+      const isSample = els.isSample.checked;
+      const p = Math.min(100, Math.max(0, Number(els.percentile.value)));
+      const dp = Math.max(0, Math.min(12, Number(els.precision.value)|0));
+
+      const sorted = [...values].sort((a,b)=>a-b);
+      const n = values.length;
+      const s = sum(values);
+      const mn = mean(values);
+      const gmean = geometricMean(values);
+      const hmean = harmonicMean(values);
+      const med = median(sorted);
+      const q1 = quantileR7(sorted, 0.25);
+      const q2 = quantileR7(sorted, 0.50);
+      const q3 = quantileR7(sorted, 0.75);
+      const pX = quantileR7(sorted, p/100);
+      const v = variance(values, isSample);
+      const sd = Math.sqrt(v);
+      const r = sorted[n-1] - sorted[0];
+      const {modes: modeVals, count: modeCount} = modes(values);
+      const uniq = uniqueSorted(values);
+      const cv = mn !== 0 ? sd / Math.abs(mn) : NaN;
+      const skew = skewness(values, isSample);
+      const kurtEx = kurtosisExcess(values, isSample);
+
+      // Badges
+      els.badges.innerHTML = `
+        ${badge(`${n} values`)}
+        ${badge(`Min ${round(sorted[0], dp)}`)}
+        ${badge(`Max ${round(sorted[n-1], dp)}`)}
+        ${badge(isSample ? 'Sample mode' : 'Population mode')}
+      `;
+
+      function fmt(x) { return Number.isFinite(x) ? String(round(x, dp)) : '—'; }
+
+      const cards = [
+        ['Sum', fmt(s)],
+        ['Mean (Arithmetic)', fmt(mn)],
+        ['Geometric Mean', Number.isFinite(gmean) ? fmt(gmean) : '— (requires all > 0)'],
+        ['Harmonic Mean', Number.isFinite(hmean) ? fmt(hmean) : '— (no zeros allowed)'],
+        ['Median', fmt(med)],
+        ['Mode', modeVals.length ? `${modeVals.map(x => round(x, dp)).join(', ')} (×${modeCount})` : '— (no unique mode)'],
+        ['Variance', fmt(v)],
+        ['Std. Deviation', fmt(sd)],
+        ['Coefficient of Variation', Number.isFinite(cv) ? fmt(cv) : '—'],
+        ['Range', fmt(r)],
+        ['Q1 (25th %)', fmt(q1)],
+        ['Q2 (Median)', fmt(q2)],
+        ['Q3 (75th %)', fmt(q3)],
+        [`P${p}`, fmt(pX)],
+        ['IQR (Q3−Q1)', fmt(q3 - q1)],
+        ['Skewness (adj.)', fmt(skew)],
+        ['Excess Kurtosis', fmt(kurtEx)],
+        ['Distinct Values', String(uniq.length)],
+      ];
+
+      els.results.innerHTML = cards.map(([k, v]) => (
+        `<div class="metric"><div class="k">${k}</div><div class="v">${v}</div></div>`
+      )).join('');
+    }
+
+    function compute() {
+      showError('');
+      const values = parseNumbers(els.data.value);
+      if (values.length === 0) {
+        showError('Please provide at least one numeric value.');
+        els.results.innerHTML = '';
+        els.badges.innerHTML = '';
+        return;
+      }
+      renderResults(values);
+    }
+
+    // Demo dataset with a nice spread
+    function fillDemo() {
+      const demo = [12, 9, 5, 17, 23, 9, 9, 14, 27, 19, 20, 15, 13, 11, 10, 8, 21, 25, 18, 7, 13, 16, 12];
+      els.data.value = demo.join(', ');
+      compute();
+    }
+
+    // Events
+    els.btnCompute.addEventListener('click', compute);
+    els.btnClear.addEventListener('click', () => {
+      els.data.value = '';
+      els.results.innerHTML = '';
+      els.badges.innerHTML = '';
+      showError('');
+    });
+    els.btnFillDemo.addEventListener('click', fillDemo);
+
+    els.data.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey || !e.shiftKey)) {
+        e.preventDefault();
+        compute();
+      }
+    });
+
+    // Initial demo for a nice first impression
+    fillDemo();
+  </script>
 </body>
 </html>
