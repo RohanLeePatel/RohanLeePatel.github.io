@@ -1,110 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #222;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .calculator {
-      background: #333;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      width: 280px;
-    }
-    #display {
-      width: 100%;
-      height: 50px;
-      font-size: 24px;
-      margin-bottom: 12px;
-      text-align: right;
-      padding: 8px;
-      border: none;
-      border-radius: 8px;
-      background: #111;
-      color: #0f0;
-    }
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    button {
-      padding: 18px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #555;
-      color: #fff;
-      transition: 0.2s;
-    }
-    button:hover {
-      background: #777;
-    }
-    .equal {
-      grid-column: span 2;
-      background: #0a84ff;
-    }
-    .equal:hover {
-      background: #0066cc;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Site</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="calculator">
-    <input type="text" id="display" disabled>
-    <div class="buttons">
-      <button onclick="clearDisplay()">C</button>
-      <button onclick="appendValue('/')">÷</button>
-      <button onclick="appendValue('*')">×</button>
-      <button onclick="backspace()">⌫</button>
-      <button onclick="appendValue('7')">7</button>
-      <button onclick="appendValue('8')">8</button>
-      <button onclick="appendValue('9')">9</button>
-      <button onclick="appendValue('-')">−</button>
-      <button onclick="appendValue('4')">4</button>
-      <button onclick="appendValue('5')">5</button>
-      <button onclick="appendValue('6')">6</button>
-      <button onclick="appendValue('+')">+</button>
-      <button onclick="appendValue('1')">1</button>
-      <button onclick="appendValue('2')">2</button>
-      <button onclick="appendValue('3')">3</button>
-      <button class="equal" onclick="calculate()">=</button>
-      <button onclick="appendValue('0')">0</button>
-      <button onclick="appendValue('.')">.</button>
-    </div>
-  </div>
 
-  <script>
-    const display = document.getElementById('display');
+    <header>
+        <h1>Test</h1>
+        <p>Test</p>
+    </header>
 
-    function appendValue(val) {
-      display.value += val;
-    }
-    function clearDisplay() {
-      display.value = '';
-    }
-    function backspace() {
-      display.value = display.value.slice(0, -1);
-    }
-    function calculate() {
-      try {
-        display.value = eval(display.value);
-      } catch {
-        display.value = "Error";
-      }
-    }
-  </script>
+    <main>
+        <section>
+            <h2>Test</h2>
+            <p>
+              Test
+            </p>
+        </section>
+
+        <section>
+            <h2>Test</h2>
+            <ul>
+                <li>Test</li>
+                <li>Test</li>
+                <li>Test</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Contact</h2>
+            <p>
+                Email me at <a href="#">rohanpatel0905@email.com</a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Test</p>
+    </footer>
+
 </body>
 </html>
